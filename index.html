@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mega80 | Plataforma de iGaming</title>
+    
+    <link rel="stylesheet" href="style.css">
+    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Russo+One&display=swap" rel="stylesheet">
+
+    <style>
+        .music-btn {
+            width: 40px; height: 40px;
+            background: #111;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            color: #888;
+            transition: 0.3s;
+            margin-right: 15px;
+        }
+        .music-btn:hover {
+            border-color: #00ff41;
+            color: #fff;
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.3);
+        }
+        .music-btn.playing {
+            color: #00ff41;
+            border-color: #00ff41;
+            animation: pulseMusic 2s infinite;
+        }
+        @keyframes pulseMusic {
+            0% { box-shadow: 0 0 0 0 rgba(0, 255, 65, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(0, 255, 65, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 255, 65, 0); }
+        }
+    </style>
+</head>
+<body onclick="firstInteraction()">
+
+    <audio id="bg-music" loop>
+        <source src="music.mp3" type="audio/mpeg">
+        Seu navegador não suporta áudio.
+    </audio>
+
+    <section id="access-gate" class="gate-overlay">
+        <div class="gate-content">
+            <div class="gate-logo">
+                <h1>MEGA<span class="highlight">80</span></h1>
+                <p>A Plataforma #1 de Entretenimento</p>
+            </div>
+
+            <div class="auth-box">
+                <div class="auth-tabs">
+                    <button class="auth-tab active" onclick="switchAuth('login')">ENTRAR</button>
+                    <button class="auth-tab" onclick="switchAuth('register')">CRIAR CONTA</button>
+                </div>
+
+                <div id="login-form" class="auth-form">
+                    <div class="input-group">
+                        <label>E-mail</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" id="login-email" placeholder="seu@email.com">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Senha</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="login-pass" placeholder="Sua senha">
+                        </div>
+                    </div>
+                    <button class="btn-auth-action" onclick="performLogin()">ACESSAR PLATAFORMA</button>
+                </div>
+
+                <div id="register-form" class="auth-form" style="display: none;">
+                    <div class="input-group">
+                        <label>Usuário</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-user"></i>
+                            <input type="text" id="reg-name" placeholder="Ex: JogadorVip">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>E-mail</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" id="reg-email" placeholder="seu@email.com">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Senha</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="reg-pass" placeholder="Crie uma senha forte">
+                        </div>
+                    </div>
+                    <button class="btn-auth-action" onclick="performRegister()">REGISTRAR E JOGAR</button>
+                </div>
+
+                <div class="gate-footer">
+                    <p><i class="fas fa-lock"></i> Ambiente Seguro 256-bit SSL</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div id="deposit-modal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3>Depositar</h3>
+                <button class="close-modal" id="closeDeposit"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <p>Escolha o método:</p>
+                <div class="payment-methods">
+                    <button class="pm-btn active"><i class="fas fa-qrcode"></i> PIX</button>
+                    <button class="pm-btn"><i class="fab fa-bitcoin"></i> CRIPTO</button>
+                </div>
+                <div class="input-group">
+                    <label>Valor (BRL)</label>
+                    <input type="number" id="deposit-amount" placeholder="Ex: 50,00" value="50">
+                </div>
+                <div class="quick-values">
+                    <span onclick="setVal(20)">R$ 20</span>
+                    <span onclick="setVal(50)">R$ 50</span>
+                    <span onclick="setVal(100)">R$ 100</span>
+                </div>
+                <button class="btn-deposit-confirm" id="confirmDeposit">GERAR PAGAMENTO</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="app-container" id="app-interface" style="display: none;">
+        
+        <aside class="sidebar">
+            <div class="logo-area">
+                <h2>MEGA<span class="highlight">80</span></h2>
+            </div>
+            <nav class="side-nav">
+                <p class="nav-label">MENU</p>
+                <a href="#" class="nav-item active"><i class="fas fa-home"></i> Início</a>
+                <a href="#" class="nav-item"><i class="fas fa-rocket"></i> Crash Games</a>
+                <a href="#" class="nav-item"><i class="fas fa-dice"></i> Ao Vivo</a>
+                <a href="#" class="nav-item"><i class="fas fa-futbol"></i> Esportes</a>
+                
+                <p class="nav-label">CONTA</p>
+                <a href="#" class="nav-item"><i class="fas fa-history"></i> Histórico</a>
+                <a href="#" class="nav-item"><i class="fas fa-wallet"></i> Carteira</a>
+                
+                <div class="sidebar-promo" style="background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('game-slot.jpg'); background-size: cover;">
+                    <i class="fas fa-gift" style="color: #fff"></i>
+                    <span>Bônus Diário<br><small>Resgatar</small></span>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            
+            <header class="topbar">
+                <button class="menu-toggle"><i class="fas fa-bars"></i></button>
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Buscar jogo...">
+                </div>
+
+                <div class="user-area">
+                    <div class="music-btn" id="musicToggleBtn" onclick="toggleMusic(event)" title="Ligar/Desligar Música">
+                        <i class="fas fa-volume-mute" id="musicIcon"></i>
+                    </div>
+
+                    <div class="balance-display">
+                        <span class="currency">R$</span>
+                        <span id="user-balance">...</span>
+                    </div>
+                    <button class="btn-deposit" id="openDeposit">Depositar</button>
+                    
+                    <div class="profile-icon" onclick="logout()" title="Sair da conta">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </div>
+                </div>
+            </header>
+
+            <div class="winners-ticker">
+                <div class="ticker-content" id="ticker-content">
+                    🔥 João acabou de ganhar R$ 1.200 no Aviator! &nbsp;&nbsp;&nbsp; 🚀 Maria sacou R$ 500 no PIX! &nbsp;&nbsp;&nbsp; 💎 Pedro ganhou R$ 3.000 no Slot!
+                </div>
+            </div>
+
+            <div class="banner-area">
+                <div class="promo-card">
+                    <div class="promo-text">
+                        <h3>OFERTA DE BOAS-VINDAS</h3>
+                        <h1>100% ATÉ R$ 500</h1>
+                        <p>Dobre seu primeiro depósito via PIX agora mesmo.</p>
+                        <button class="btn-cta" id="btn-cta-deposit">Depositar Agora</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="category-tabs">
+                <button class="tab active"><i class="fas fa-border-all"></i> Todos</button>
+                <button class="tab"><i class="fas fa-rocket"></i> Originais</button>
+                <button class="tab"><i class="fas fa-ghost"></i> Slots</button>
+                <button class="tab"><i class="fas fa-users"></i> Cassino Live</button>
+            </div>
+
+            <div class="games-grid">
+                
+                <div class="game-card featured-game">
+                    <div class="game-badge">HOT</div>
+                    <div class="slot-mini-interface">
+                        <div class="slot-display">
+                            <span id="r1">🍒</span><span id="r2">7️⃣</span><span id="r3">💎</span>
+                        </div>
+                        <button id="spinBtn" class="btn-play-mini">GIRAR (R$ 10)</button>
+                    </div>
+                    <div class="card-info-overlay">Mega80 Slot</div>
+                </div>
+
+                <div class="game-card" style="background-image: url('game-poker.jpg')">
+                    <div class="overlay"><button class="btn-play"><i class="fas fa-play"></i></button></div>
+                    <div class="card-info-overlay">Poker Pro</div>
+                </div>
+
+                <div class="game-card" 
+                     style="background-image: url('image_0.png'); background-size: cover; background-position: center; cursor: pointer; border: 1px solid #00ff41;" 
+                     onclick="window.location.href='chat-mentor.html'">
+                    
+                    <div class="overlay">
+                        <button class="btn-play" style="background-color: #00ff41; color: #000; border:none;">
+                            <i class="fas fa-brain"></i>
+                        </button>
+                    </div>
+                    <div class="card-info-overlay" style="color: #00ff41; font-weight: 800; letter-spacing: 1px; text-shadow: 0 2px 4px rgba(0,0,0,0.8);">
+                        MENTOR EDDYMILLER
+                    </div>
+                </div>
+                <div class="game-card" style="background-image: url('game-roulette.jpg')">
+                    <div class="overlay"><button class="btn-play"><i class="fas fa-play"></i></button></div>
+                    <div class="card-info-overlay">Roleta VIP</div>
+                </div>
+
+                <div class="game-card" style="background-image: url('game-poker.jpg')">
+                    <div class="overlay"><button class="btn-play"><i class="fas fa-play"></i></button></div>
+                    <div class="card-info-overlay">Blackjack 21</div>
+                </div>
+                
+                <div class="game-card" style="background-image: url('https://images.unsplash.com/photo-1553481187-be93c21490a9?q=80&w=600')">
+                    <div class="overlay"><button class="btn-play"><i class="fas fa-play"></i></button></div>
+                    <div class="card-info-overlay">Dice God</div>
+                </div>
+            </div>
+
+            <footer class="site-footer">
+                <div class="footer-logos">
+                    <i class="fab fa-cc-visa"></i>
+                    <i class="fab fa-cc-mastercard"></i>
+                    <i class="fas fa-qrcode"></i>
+                    <i class="fab fa-bitcoin"></i>
+                </div>
+                <p>&copy; 2024 Mega80 Gaming. Todos os direitos reservados.</p>
+                <div class="footer-badges">
+                    <span>18+</span>
+                    <span>GC Curaçao</span>
+                    <span>SSL Secure</span>
+                </div>
+            </footer>
+        </main>
+    </div>
+
+    <div id="toast" class="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toast-msg">Sucesso!</span>
+    </div>
+
+    <script src="script.js"></script>
+    
+    <script>
+        const bgMusic = document.getElementById('bg-music');
+        const musicBtn = document.getElementById('musicToggleBtn');
+        const musicIcon = document.getElementById('musicIcon');
+        let hasInteracted = false;
+
+        // Trata erro caso o arquivo não exista
+        bgMusic.addEventListener('error', function(e) {
+            console.log("Aviso: music.mp3 não encontrado. Coloque um arquivo MP3 na pasta.");
+        });
+
+        // Tenta tocar na primeira interação do usuário (clique em qualquer lugar)
+        function firstInteraction() {
+            if (!hasInteracted) {
+                hasInteracted = true;
+                bgMusic.volume = 0.4; // Volume agradável
+                bgMusic.play().then(() => {
+                    updateMusicUI(true);
+                }).catch(err => {
+                    console.log("Autoplay bloqueado pelo navegador. O usuário precisa clicar no botão de som.");
+                });
+            }
+        }
+
+        // Função do Botão de Música
+        function toggleMusic(e) {
+            if(e) e.stopPropagation(); // Evita ativar o firstInteraction novamente
+            if (bgMusic.paused) {
+                bgMusic.play();
+                updateMusicUI(true);
+            } else {
+                bgMusic.pause();
+                updateMusicUI(false);
+            }
+        }
+
+        // Atualiza o ícone visual
+        function updateMusicUI(isPlaying) {
+            if (isPlaying) {
+                musicIcon.classList.remove('fa-volume-mute');
+                musicIcon.classList.add('fa-volume-up');
+                musicBtn.classList.add('playing');
+            } else {
+                musicIcon.classList.remove('fa-volume-up');
+                musicIcon.classList.add('fa-volume-mute');
+                musicBtn.classList.remove('playing');
+            }
+        }
+    </script>
+</body>
+</html>
